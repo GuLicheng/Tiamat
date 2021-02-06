@@ -14,7 +14,7 @@ def vgg16(config=configs["vgg16"], in_channels=3, batch_norm=True):
             in_channels: the in_channels of your sample(default for 3-RGB)
             batch_norm: whether batch normalization or not
         Return:
-            a list of layer consist of layer in vgg16(13 convolution layers and 5 maxpool layers)
+            a list of layer consist of layer in vgg16(with 13 convolution layers and 5 maxpool layers)
     """
     layers = []
     _in_channels = in_channels
@@ -38,12 +38,12 @@ def vgg16(config=configs["vgg16"], in_channels=3, batch_norm=True):
 VGG16 = vgg16()
 
 
+
+
 def test_for_vgg16() -> None:
     net = vgg16()
     for layer in net:
         print(layer)
-    print(net.__len__())
-
 
 if __name__ == '__main__':
     test_for_vgg16()

@@ -6,15 +6,13 @@ from typing import *
 
 """the Second Directory exported finally"""
 # training set path
-SECONDARY_DIRECTORY_TRAIN_ROOT: str = f"D:\MY\DataSet\DUTS\DUTS-TR"
+SECONDARY_DIRECTORY_TRAIN_ROOT: str = f"D:\SOD\SOD\SOD"
 SECONDARY_DIRECTORY_TRAIN_PATHS: Tuple[str, ...] = (
-    f"/DUTS-TR-Image",
-    f"/DUTS-TR-Mask",
-    f"/DUTS-TR-Edge"
+    f"\image",
+    f"\gt"
 )
 SECONDARY_DIRECTORY_TRAIN_SUFFIX: Tuple[str, ...] = (
     ".jpg",
-    ".png",
     ".png"
 )
 
@@ -30,4 +28,4 @@ SECONDARY_DIRECTORY_TEST_SUFFIX: Tuple[str, ...] = (
     ".png"
 )
 
-"""ths Three-Level Directory exported finally"""
+"""the Three-Level Directory exported finally"""

@@ -1,12 +1,13 @@
 """
     2020/11/30 - now
-    This module provide the transformation for your image
+    This module provide the transformation(preprocess operations) 
+    for your image
 """
 
 from PIL import Image
 from typing import *
 from torchvision import transforms
-from .constant import *
+from component.configurations import *
 
 
 # read RGB pictures
@@ -20,9 +21,6 @@ class ImageOpenConvert1:
     def __call__(self, x):
         return Image.open(x).convert("1")
 
-
-# the new size of your samples(pictures)
-resize_for_image: Tuple[int, int] = RESIZE
 
 """
     class torchvision.transform.ToTensor
@@ -40,16 +38,16 @@ resize_for_image: Tuple[int, int] = RESIZE
 transforms_for_image: transforms.Compose = transforms.Compose([
     # lambda x: Image.open(x).convert("RGB"),
     ImageOpenConvertRGB(),
-    transforms.Resize(resize_for_image),
+    transforms.Resize(config.size),
     transforms.ToTensor(),
-    transforms.Normalize(mean=MEAN, std=STD)
+    transforms.Normalize(mean=config.mean, std=config.std)
 ])
 
 # pre-process for label
 transforms_for_label: transforms.Compose = transforms.Compose([
     # lambda x: Image.open(x).convert("1"),
     ImageOpenConvert1(),
-    transforms.Resize(resize_for_image),
+    transforms.Resize(config.size),
     transforms.ToTensor()
 ])
 """
@@ -69,7 +67,6 @@ transforms_for_label: transforms.Compose = transforms.Compose([
 TRAIN_TRANSFORMS: Tuple[transforms.Compose, ...] = (
     transforms_for_image,
     transforms_for_label,
-    transforms_for_label
 )
 
 TEST_TRANSFORMS: Tuple[transforms.Compose, ...] = (

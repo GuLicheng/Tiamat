@@ -5,7 +5,7 @@
 import torch.nn as nn
 import torch.optim
 
-from Loader.data_loader import TRAIN_LOADER, TEST_LOADER
+from loader.data_loader import TRAIN_LOADER, TEST_LOADER
 
 MODEL = nn.Sequential(
     # 3*224*224  -> 3*224*224

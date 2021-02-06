@@ -46,7 +46,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from component.imagepath import *
 from component.transform import *
-from component.constant import *
+from component.configurations import *
 
 
 class SecondDirectoryStructureDataLoader(Dataset):
@@ -59,8 +59,8 @@ class SecondDirectoryStructureDataLoader(Dataset):
 
         e.g.
         "D:\MY\DataSet\DUTS\DUTS-TE\DUTS-TE-Image\ILSVRC2012_test_00000003.jpg"
-        root(first directory) = D:\MY\DataSet\DUTS\DUTS-TE\
-        image_dir(second directory) = DUTS-TE-Image\
+        root(first directory) = D:\MY\DataSet\DUTS\DUTS-TE\ 
+        image_dir(second directory) = DUTS-TE-Image\ 
         filename(sample name) = ILSVRC2012_test_00000003.jpg
         This is a secondary directory structure template
     """
@@ -195,21 +195,24 @@ class SecondDirectoryStructureDataLoader(Dataset):
 
     def assert_(self):
         # print(self.tfs.__len__(), self.dirs.__len__(), self.suffixes.__len__())
-        assert len(self.tfs) == len(self.dirs) == len(self.suffixes)
-        assert self.mode in ["train", "test"]
+        if len(self.tfs) == len(self.dirs) == len(self.suffixes):
+            assert self.mode in ["train", "test"]
+        else:
+            print(len(self.tfs), len(self.dirs), len(self.suffixes))
+            assert False, "Not satisfied len(self.tfs) == len(self.dirs) == len(self.suffixes)"
 
-"""the train_loader exported finally"""
+"""the test_loader exported finally"""
 TEST_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
     mode="test",
-    root=SECONDARY_DIRECTORY_TEST_ROOT,
-    dirs=SECONDARY_DIRECTORY_TEST_PATHS,
+    root=config.secondary_directory_train_root,
+    dirs=config.secondary_directory_train_paths,
     tfs=TEST_TRANSFORMS,
-    suffixes=SECONDARY_DIRECTORY_TEST_SUFFIX), batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+    suffixes=config.secondary_directory_train_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)
 
-""""the test_loader exported finally"""
+""""the train_loader exported finally"""
 TRAIN_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
     mode="train",
-    root=SECONDARY_DIRECTORY_TRAIN_ROOT,
-    dirs=SECONDARY_DIRECTORY_TRAIN_PATHS,
+    root=config.secondary_directory_train_root,
+    dirs=config.secondary_directory_train_paths,
     tfs=TRAIN_TRANSFORMS,
-    suffixes=SECONDARY_DIRECTORY_TRAIN_SUFFIX), batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+    suffixes=config.secondary_directory_train_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)

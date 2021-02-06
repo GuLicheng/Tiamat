@@ -29,7 +29,7 @@ class Slover:
         optimizer = self.optimizer
         criteon = F.binary_cross_entropy_with_logits
         for epoch in range(10):
-            for batch, (x, y, _) in enumerate(self.train_loader):
+            for batch, (x, y) in enumerate(self.train_loader):
                 x, y = x.to(self.device), y.to(self.device)
                 logits = self.model(x)
                 loss = criteon(logits, y)
