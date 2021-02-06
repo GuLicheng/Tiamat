@@ -4,10 +4,13 @@
     for your image
 """
 
+import sys
+sys.path.append("./../")
+
 from PIL import Image
 from typing import *
 from torchvision import transforms
-from component.configurations import *
+from configurations import config
 
 
 # read RGB pictures

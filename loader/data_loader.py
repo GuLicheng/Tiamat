@@ -37,6 +37,9 @@
 
         but a three-level directory structure(all the file name must be the same).
 """
+import sys
+sys.path.append("..")
+
 import csv
 import functools
 import operator
@@ -46,7 +49,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from component.imagepath import *
 from component.transform import *
-from component.configurations import *
+from configurations import *
 
 
 class SecondDirectoryStructureDataLoader(Dataset):

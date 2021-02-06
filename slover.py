@@ -1,28 +1,29 @@
 """
     This is a model framework, you just need provide your
+    model and optimizer for your Net
 """
-import torch
 
-from configuration import cfg
+import torch
+import torch.optim
 import torch.nn.functional as F
+
+# from configuration import cfg
+from configurations import config
+from loader.data_loader import TEST_LOADER, TRAIN_LOADER
+from model.test_model import MODEL
+
 
 
 class Slover:
     """
+        ...
     """
-
-    def __init__(self,
-                 model=cfg["model"],
-                 train_loader=cfg["train_loader"],
-                 test_loader=cfg["test_loader"],
-                 optimizer=cfg["optimizer"],
-                 device=cfg["device"]
-                 ):
+    def __init__(self, model):
         self.model = model
-        self.train_loader = train_loader
-        self.test_loader = test_loader
-        self.optimizer = optimizer
-        self.device = device
+        self.train_loader = TRAIN_LOADER
+        self.test_loader = TEST_LOADER
+        self.optimizer = torch.optim.SGD(self.model.parameters(), config.learning_rate)
+        self.device = config.device
 
     def train(self):
         self.model = self.model.to(self.device)
@@ -56,6 +57,8 @@ class Slover:
         torch.save(self.model.state_dict(), file_name)
 
 
+
 if __name__ == '__main__':
-    slover = Slover()
+
+    slover = Slover(MODEL)
     slover.train()

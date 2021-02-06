@@ -38,8 +38,10 @@ STD = [0.229, 0.224, 0.225]
 """
 
 """Here is formal code:"""
+
 import configparser
 import torch
+import torch.optim
 from dataclasses import dataclass
 from typing import *
 
@@ -49,7 +51,7 @@ class Config:
     def __init__(self, path) -> None:
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
+
         """Dataset Path"""
         # training set path
         self.secondary_directory_train_root: str = f"D:/SOD/SOD/SOD"
