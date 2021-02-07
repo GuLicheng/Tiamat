@@ -52,6 +52,7 @@ class Slover:
     def test(self):
         pass
 
+
     def save_model(self, file_name: str) -> None:
         print("Saving model paras: " + file_name)
         torch.save(self.model.state_dict(), file_name)

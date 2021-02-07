@@ -1,10 +1,14 @@
 """
-    2020/11/30 - now
+    2020/11/30 - 2021/2/7
     This module provide image file path for your data loader
-"""
-from typing import *
 
-"""the Second Directory exported finally"""
+    The file is deprecated, Please ignore 
+
+from typing import *
+"""
+
+"""
+# the Second Directory exported finally
 # training set path
 SECONDARY_DIRECTORY_TRAIN_ROOT: str = f"D:\SOD\SOD\SOD"
 SECONDARY_DIRECTORY_TRAIN_PATHS: Tuple[str, ...] = (
@@ -28,4 +32,5 @@ SECONDARY_DIRECTORY_TEST_SUFFIX: Tuple[str, ...] = (
     ".png"
 )
 
-"""the Three-Level Directory exported finally"""
+# the Three-Level Directory exported finally
+"""

@@ -41,11 +41,10 @@ STD = [0.229, 0.224, 0.225]
 
 import configparser
 import torch
-import torch.optim
 from dataclasses import dataclass
 from typing import *
 
-@dataclass(init=True, unsafe_hash=False, repr=False, eq=False, order=False, frozen=False)
+@dataclass(init=True, unsafe_hash=False, repr=True, eq=False, order=False, frozen=False)
 class Config:
 
     def __init__(self, path) -> None:
@@ -103,13 +102,5 @@ class Config:
 config = Config(r"D:\GraphTheoryCode\Template\Tiamat\configuration\config.ini")
 
 if __name__ == "__main__":
-    print(config.batch_size)
-    print(config.num_workers)
-    print(config.learning_rate)
-    print(config.dropout)
-    print(config.mean)
-    print(config.std)
-    print(config.size)
-    print(config.device)
-    print(config.secondary_directory_train_paths)
-    print(config.secondary_directory_train_suffixes)
+    for item in config.__dict__.items():
+        print(item)
