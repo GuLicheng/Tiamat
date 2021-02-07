@@ -52,26 +52,34 @@ class Config:
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        """Dataset Path"""
-        # training set path
-        self.secondary_directory_train_root: str = f"D:/SOD/SOD/SOD"
-        self.secondary_directory_train_paths: Tuple[str, ...] = (
-            f"/image",
-            f"/gt"
-        )
-        self.secondary_directory_train_suffixes: Tuple[str, ...] = (
-            ".jpg",
-            ".png"
-        )
-
-        # tests set path
-        # self.secondary_directory_test_root
-        # self.secondary_directory_test_path
-        # self.secondary_directory_test_suffixes
 
         """Read Configurations"""
         config = configparser.ConfigParser()
         config.read(path)
+
+        # training set path
+        self.secondary_directory_train_root: str = config.get("path", "train_root")
+        self.secondary_directory_train_paths: Tuple[str, ...] = (
+            config.get("path", "train_sample_path"),
+            config.get("path", "train_label_path")
+        )
+        self.secondary_directory_train_suffixes: Tuple[str, ...] = (
+            config.get("path", "train_sample_suffix"),
+            config.get("path", "train_label_suffix")
+        )
+
+        # testing set path
+        self.secondary_directory_test_root: str = config.get("path", "test_root")
+        self.secondary_directory_test_paths: Tuple[str, ...] = (
+            config.get("path", "test_sample_path"),
+            config.get("path", "test_label_path")
+        )
+        self.secondary_directory_test_suffixes: Tuple[str, ...] = (
+            config.get("path", "test_sample_suffix"),
+            config.get("path", "test_label_suffix")
+        )
+
+
         self.size = (
             config.getint("size", "weight"), 
             config.getint("size", "height")
@@ -104,3 +112,4 @@ if __name__ == "__main__":
     print(config.size)
     print(config.device)
     print(config.secondary_directory_train_paths)
+    print(config.secondary_directory_train_suffixes)

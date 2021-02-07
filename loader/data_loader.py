@@ -207,10 +207,10 @@ class SecondDirectoryStructureDataLoader(Dataset):
 """the test_loader exported finally"""
 TEST_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
     mode="test",
-    root=config.secondary_directory_train_root,
-    dirs=config.secondary_directory_train_paths,
+    root=config.secondary_directory_test_root,
+    dirs=config.secondary_directory_test_paths,
     tfs=TEST_TRANSFORMS,
-    suffixes=config.secondary_directory_train_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)
+    suffixes=config.secondary_directory_test_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)
 
 """"the train_loader exported finally"""
 TRAIN_LOADER = DataLoader(SecondDirectoryStructureDataLoader(

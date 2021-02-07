@@ -59,6 +59,5 @@ class Slover:
 
 
 if __name__ == '__main__':
-
     slover = Slover(MODEL)
     slover.train()
