@@ -47,7 +47,15 @@ class GraphConvolution(nn.Module):
     def forward(self, x, adjcent_matrix):
         """
             The inputs of GCN layer are feature matrix and graph(adjacent matrix)
+            self.weight is a row * column matrix which represent in_features
+            and out_features, for Saliency Object Detection, it may be channels
+            (every channel is a feature vector(feature map) or a graph node)
         """
+        # for Y = AXW
+        # Y is output or H(i+1), 
+        # A is adjacent matrix or degrees matrix
+        # X is H(i), 
+        # W is weight which is used to change channels
         support = torch.mm(x, self.weights)
         output = torch.spmm(adjcent_matrix, support)
         if self.bias is not None:
@@ -134,6 +142,8 @@ class GCN(nn.Module):
         x = F.dropout(x, self.dropout, training=self.training)
         x = self.gc2(x, adj)
         return F.log_softmax(x, dim=1)
+
+# https://blog.csdn.net/d179212934/article/details/108093614
 
 def encode_onehot(labels):
     classes = set(labels)

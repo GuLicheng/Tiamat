@@ -26,4 +26,15 @@ MODEL = nn.Sequential(
     nn.Conv2d(in_channels=128, out_channels=1, kernel_size=3, stride=1, padding=1)
 )
 
+from vgg16 import VGG16
+from GCN import GCN
 
+class Net(nn.Module):
+
+    def __init__(self):
+        super(Net, self).__init__()
+        self.vgg = VGG16
+        self.gcn = GCN(512, 128, 1, 0.5)
+
+    def forward(self, x):
+        
