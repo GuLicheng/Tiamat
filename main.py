@@ -1,6 +1,6 @@
 import csv
-from os import read
 
-with open("./a.csv", "r", newline="") as cvsfile:
+
+with open("a.csv", "r", newline="") as cvsfile:
     reader = csv.DictReader(cvsfile)
-    print(reader)
+    print(reader.reader.line_num)
