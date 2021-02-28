@@ -1,6 +1,6 @@
 """
     2021/2/21 - now
-    This a simply snack game and someday I will use AI techology to train it...
+    This a simply snack game and I will use AI techology to train it someday...
 """
 import pygame
 import random
