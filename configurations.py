@@ -4,7 +4,7 @@
     This file provide the parameters for initializing your model
 
     This constant in this file was deprecated, please change your configs in 
-    Configration/config.ini
+    Configuration/config.ini
 
 """
 
@@ -44,13 +44,12 @@ import torch
 from dataclasses import dataclass
 from typing import *
 
+
 @dataclass(init=True, unsafe_hash=False, repr=True, eq=False, order=False, frozen=False)
 class Config:
 
     def __init__(self, path) -> None:
-
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
         """Read Configurations"""
         config = configparser.ConfigParser()
@@ -78,16 +77,15 @@ class Config:
             config.get("path", "test_label_suffix")
         )
 
-
         self.size = (
-            config.getint("size", "weight"), 
+            config.getint("size", "weight"),
             config.getint("size", "height")
         )
         self.mean = (
             config.getfloat("mean", "red"),
             config.getfloat("mean", "green"),
             config.getfloat("mean", "blue")
-        )   
+        )
         self.std = (
             config.getfloat("std", "red"),
             config.getfloat("std", "green"),
@@ -98,8 +96,10 @@ class Config:
         self.learning_rate = config.getfloat("basic", "learning_rate")
         self.dropout = config.getfloat("basic", "dropout")
 
+
 """exported"""
-config = Config(r"D:\GraphTheoryCode\Template\Tiamat\configuration\config.ini")
+# config = Config(r"D:\GraphTheoryCode\Template\Tiamat\configuration\config.ini")
+config = Config("./configuration/config.ini")
 
 if __name__ == "__main__":
     for item in config.__dict__.items():

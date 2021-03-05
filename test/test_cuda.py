@@ -1,18 +1,20 @@
 import torch
+
 flag = torch.cuda.is_available()
 if flag:
     print("CUDA可使用")
 else:
     print("CUDA不可用")
 
-ngpu= 1
+ngpu = 1
 # Decide which device we want to run on
 device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
-print("驱动为：",device)
-print("GPU型号： ",torch.cuda.get_device_name(0))
+print("驱动为：", device)
+print("GPU型号： ", torch.cuda.get_device_name(0))
 
-import 	torch
-import  time
+import torch
+import time
+
 print(torch.__version__)
 print(torch.cuda.is_available())
 # print('hello, world.')
