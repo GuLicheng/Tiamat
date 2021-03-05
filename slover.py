@@ -1,6 +1,6 @@
 """
     This is a model framework, you just need provide your
-    model and optimizer for your Net, asdasdsa
+    model and optimizer for your Net, asdasdsasadasd
 """
 
 import torch
