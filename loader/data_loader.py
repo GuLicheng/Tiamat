@@ -31,12 +31,13 @@
           │
           ├── edge_dir
           │     ├── 00001.png
-          │     ├── 00002.png
+          │     ├── 000xc zv02.png
           │     └── 00003.png
           ......
 
         but a three-level directory structure(all the file name must be the same).
 """
+from os import path
 import sys
 sys.path.append("..")
 
@@ -121,7 +122,7 @@ class SecondDirectoryStructureDataLoader(Dataset):
     def load_file(self) -> List[Tuple[str, ...]]:
         """
             check whether filename is available, if available, create a csv file(file.txt) with the
-            name of each sample in "./data"
+            name of each sample in "./data" directory
 
             Return:
                 the name list of samples and saliency map
@@ -141,7 +142,6 @@ class SecondDirectoryStructureDataLoader(Dataset):
         if os.path.exists(self.root):
             print('sample path exists')
             paths = [self.root + directory for directory in self.dirs]
-
             csv_path = f'./data/{self.mode}file.csv'
             with open(csv_path, 'w', newline='') as f:
                 writer = csv.writer(f, delimiter=' ')
@@ -149,8 +149,11 @@ class SecondDirectoryStructureDataLoader(Dataset):
                 # for sample xxxxxxx.suffix(such as 1.jpg),
                 # there must be a label called xxxxxxx.suffix(such as 1.png)
                 # get image(sample) name from image(sample) path
-                # for sample(a, b, c), label(a, b), depth(a) we just need (a) which
-                # is the result of intersection of sample, label, and depth
+                # for 
+                #   sample(a.jpg, b.jpg, c.jpg), 
+                #   label(a.jpg, b.jpg),    // lack of c.jpg
+                #   depth(a.jpg)            // lack of b.jpg and c.jpg
+                # we just need (a) which is the result of intersection of sample, label, and depth
                 sets = [set(map(lambda x: x.split(".")[0], os.listdir(paths[i]))) for i in range(len(self.dirs))]
                 sets = functools.reduce(operator.and_, sets)
                 # you can merge these in one row but I think it's too long and complex
@@ -159,6 +162,9 @@ class SecondDirectoryStructureDataLoader(Dataset):
                 for name in sets:
                     writer.writerow([name + suffix for suffix in self.suffixes])
                 print(f"Successfully written into csv file with mode {self.mode}")
+        else:
+            print(f"root path not exist, root is {self.root}")
+            raise FileNotFoundError
 
     def read_csv(self) -> List[Tuple[str, ...]]:
         """
@@ -168,6 +174,11 @@ class SecondDirectoryStructureDataLoader(Dataset):
         """
         csv_path = f"./data/{self.mode}file.csv"
         ls = []
+
+        if not os.path.exists(csv_path):
+            print(f"{csv_path} is not exist ")
+            raise FileNotFoundError
+
         with open(csv_path, "r") as f:
             print(f'Successfully open the file, mode is {self.mode}')
             reader = csv.reader(f)
