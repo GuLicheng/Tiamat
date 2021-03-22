@@ -1,4 +1,8 @@
+import torch
 import torch.nn as nn
+from torch.nn.modules.batchnorm import BatchNorm2d
+from torch.nn.modules.conv import Conv2d
+from torchvision import models
 
 configs = {
     # 13 convolutions and 5 maxpools
@@ -35,9 +39,36 @@ def vgg16(config=configs["vgg16"], in_channels=3, batch_norm=True):
     return layers
 
 
-VGG16 = vgg16()
+class Vgg16Net(nn.Module):
+    def __init__(self):
+        super(Vgg16Net, self).__init__()
+        self.layers = nn.Sequential(
+            *vgg16()
+        )
+
+        self.layers1 = nn.Sequential(
+            nn.UpsamplingBilinear2d(scale_factor=4), # 112 * 112, 512
+            nn.Conv2d(512, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=4), #224 * 224
+            nn.Conv2d(256, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(128, 1, kernel_size=1)
+        )
+
+        
 
 
+    def forward(self, x):
+        x = self.layers(x)
+        # print(x.size())
+        x = self.layers1(x)
+        # print(x.size())
+        return x
 
 
 def test_for_vgg16() -> None:
@@ -46,4 +77,7 @@ def test_for_vgg16() -> None:
         print(layer)
 
 if __name__ == '__main__':
-    test_for_vgg16()
+    model = Vgg16Net()
+    t = torch.randn(8, 3, 224, 224)
+    t = model(t)
+    print(t.size())

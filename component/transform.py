@@ -25,6 +25,11 @@ class ImageOpenConvert1:
         return Image.open(x).convert("1")
 
 
+# meta indentity for trick
+class MetaConvert:
+    def __call__(self, *args):
+        return args
+
 """
     class torchvision.transform.ToTensor
     PIL.Image or numpy.nd-array data whose pixel value range of shape=(H,W,C) is [0, 255]
@@ -44,6 +49,10 @@ transforms_for_image: transforms.Compose = transforms.Compose([
     transforms.Resize(config.size),
     transforms.ToTensor(),
     transforms.Normalize(mean=config.mean, std=config.std)
+])
+
+meta_transform: transforms.Compose = transforms.Compose([
+    MetaConvert()
 ])
 
 # pre-process for label
@@ -75,4 +84,9 @@ TRAIN_TRANSFORMS: Tuple[transforms.Compose, ...] = (
 TEST_TRANSFORMS: Tuple[transforms.Compose, ...] = (
     transforms_for_image,
     transforms_for_label,
+)
+
+META_TRANSFORMS: Tuple[transforms.Compose, ...] = (
+    meta_transform,
+    meta_transform
 )

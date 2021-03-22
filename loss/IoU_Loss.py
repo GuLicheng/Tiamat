@@ -52,40 +52,31 @@ class SoftIoULoss(nn.Module):
         return -loss.mean()
 
 
-class IoU(nn.Module):
+"""
+    Copied from BASNet
+"""
+def _iou(pred, target, size_average = True):
 
-    def __init__(self):
-        super(IoU, self).__init__()
+    b = pred.shape[0]
+    IoU = 0.0
+    for i in range(0,b):
+        #compute the IoU of the foreground
+        Iand1 = torch.sum(target[i,:,:,:]*pred[i,:,:,:])
+        Ior1 = torch.sum(target[i,:,:,:]) + torch.sum(pred[i,:,:,:])-Iand1
+        IoU1 = Iand1/Ior1
+
+        #IoU loss is (1-IoU1)
+        IoU = IoU + (1-IoU1)
+
+    return IoU/b
+
+class IOU(torch.nn.Module):
+    def __init__(self, size_average = True):
+        super(IOU, self).__init__()
+        self.size_average = size_average
 
     def forward(self, pred, target):
-        return self.iou(pred, target)
 
-    def iou(self, pred, target):
-        """
-            adopt IoU loss used in:
-            Loss = 1 - (∑∑S(r,c)G(r,c)) / (∑∑[S(r,c)G(r,c) - S(r,c)G(r,c)])
-            where G(r, c) ∈ {0, 1} is the ground truth label of the pixel
-            (r, c) and S(r, c) is the predicted probability of being salient
-            object.
-        """
-        batch = pred.shape[0]
-        Iou = 0.0
-        for i in range(0, batch):
-            # compute the IoU of the foreground for each batch
-            Iand = torch.sum(target[i, :, :, :] * pred[i, :, :, :])
-            Ior = torch.sum(target[i, :, :, :] + torch.sum(pred[i, :, :, :])) - Iand
-            loss = Iand / Ior
-
-            Iou += 1 - loss
-        return Iou / batch
+        return _iou(pred, target, self.size_average)
 
 
-class LossFunctionFactory:
-
-    @staticmethod
-    def IoU_Loss_for_image() -> IoU:
-        return IoU()
-
-    @staticmethod
-    def IoU_Loss_for_classification(n_classes: int) -> SoftIoULoss:
-        return SoftIoULoss(n_classes)

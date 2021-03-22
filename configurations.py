@@ -95,6 +95,7 @@ class Config:
         self.num_workers = config.getint("basic", "num_worker")
         self.learning_rate = config.getfloat("basic", "learning_rate")
         self.dropout = config.getfloat("basic", "dropout")
+        self.epoch = config.getint("basic", "epoch")
 
 
 """exported"""

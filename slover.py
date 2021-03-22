@@ -10,13 +10,8 @@ import torch.nn as nn
 import numpy as np
 # from configuration import cfg
 from configurations import config
-from loader.data_loader import TEST_LOADER, TRAIN_LOADER
+from loader.secondary_structure_loader import TEST_LOADER, TRAIN_LOADER
 # from model.test_model import MODEL
-from model.model import MODEL
-
-from model.model import Net
-
-MODEL = Net(3)
 
 class Slover:
     """
@@ -26,7 +21,7 @@ class Slover:
         self.model = model
         self.train_loader = TRAIN_LOADER
         self.test_loader = TEST_LOADER
-        self.optimizer = torch.optim.SGD(self.model.parameters(), config.learning_rate)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), config.learning_rate)
         self.device = config.device
 
         # log 
@@ -36,7 +31,7 @@ class Slover:
         self.model = self.model.to(self.device)
         optimizer = self.optimizer
         criteon = F.binary_cross_entropy_with_logits
-        for epoch in range(200):
+        for epoch in range(config.epoch):
             for batch, (x, y) in enumerate(self.train_loader):
                 x, y = x.to(self.device), y.to(self.device)
                 logits = self.model(x)
@@ -67,7 +62,7 @@ class Slover:
 
     def show(self):
         self.model.eval()
-        cnt = 3
+        cnt = 10
         for x, y in self.test_loader:
             y = y[0].squeeze_(0).data.numpy()
             x = self.model(x)
@@ -93,15 +88,33 @@ class Slover:
         torch.save(self.model.state_dict(), file_name)
 
 
-import torchvision.transforms as tt
 from PIL import Image
 from component.transform import transforms_for_image
-if __name__ == '__main__':
-    # slover = Slover(MODEL)
-    # slover.train()
-    net = Net(3)
-    net.load_state_dict(torch.load('./result/params19.pkl'))
+from model.vgg16 import Vgg16Net
+from model.inception import InceptionNet
+
+def debug():
+    net = InceptionNet(3, 1)
+    net.load_state_dict(torch.load("./result/params0.pkl"))
     net.eval()
-    s = Slover(net)
-    s.show()
+    slover = Slover(net)
+    slover.show()
+
+def train():
+    model = InceptionNet(3, 1)
+    slover = Slover(model)
+    slover.train()
+    losses = slover.losses
+    print(f"The loss list: {losses}")
+
+def run(mode):
+    if mode == 1:
+        train()
+    else:
+        debug()
+
+if __name__ == '__main__':
+    run(2)
+
+
 

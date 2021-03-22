@@ -31,7 +31,7 @@
           │
           ├── edge_dir
           │     ├── 00001.png
-          │     ├── 000xc zv02.png
+          │     ├── 00002.png
           │     └── 00003.png
           ......
 
@@ -127,7 +127,7 @@ class SecondDirectoryStructureDataLoader(Dataset):
             Return:
                 the name list of samples and saliency map
             Warning:
-                filename(path) must be available, or this routine may throw a exception
+                filename(path) must be available, or this routine may throw an exception
         """
         if not os.path.exists(f'./data/{self.mode}file.csv'):
             print(f'not exists "{self.mode}file.txt", creating a "{self.mode}file.txt".....')
