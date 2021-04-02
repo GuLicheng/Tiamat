@@ -1,8 +1,6 @@
 import torch.nn as nn
 import torch
 
-from model.identity import Identity
-
 
 class DownSample(nn.Module):
     """
@@ -47,7 +45,7 @@ class DownSample(nn.Module):
         if not self.bias:
             BN = nn.BatchNorm2d
         else:
-            BN = Identity
+            BN = nn.Identity
 
         return nn.Sequential(
             nn.Conv2d(in_channels=self.channels, out_channels=self.channels, kernel_size=kernel_size, stride=stride,padding=kernel_size // 2, bias=self.bias),

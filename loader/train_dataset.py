@@ -42,18 +42,18 @@ class Config:
 
         """
 
-        # self.data_root = r"D:/MY/DataSet/CoSal2015/"
-        self.data_root = r"G:/COCO-SEG/train"
-        self.image_file_name = r"image"
-        self.ground_truth_name = r"groundtruth"
+        self.data_root = r"D:/MY/DataSet/CoSal2015/"
+        # self.data_root = r"D:/MY/DataSet/iCoseg"
+        self.image_file_name = r"Image"
+        self.ground_truth_name = r"GroundTruth"
 
-        self.image_file_suffix = r"jpg"
-        self.ground_truth_suffix = r"jpg"
+        self.image_file_suffix = r".jpg"
+        self.ground_truth_suffix = r".png"
 
         self.img_size = (256, 256)
         self.batch_size = 1
         self.num_thread = 0
-        self.sample_num = 1
+        self.sample_num = 5
 
 config = Config()
 
@@ -72,12 +72,7 @@ class CoData(data.Dataset):
     def __init__(self):
         self.img_root = os.path.join(config.data_root, config.image_file_name)
         self.label_root = os.path.join(config.data_root, config.ground_truth_name)
-        # self.class_list = os.listdir(self.img_root)
-        
-        # filter directory
-        self.class_list = [_ for _ in filter(lambda filename: os.path.isdir(self.img_root + '/' + filename), os.listdir(self.img_root))]
-        # print(self.class_list)
-
+        self.class_list = os.listdir(self.img_root)
         self.size = config.img_size
         self.img_dir = list(
             map(lambda x: os.path.join(self.img_root,x), self.class_list))   #ͼƬĿ¼��ַ
@@ -85,17 +80,6 @@ class CoData(data.Dataset):
             map(lambda x: os.path.join(self.label_root, x), self.class_list))  # ��ǩĿ¼��ַ
         self.img_name_list = [os.listdir(idir) for idir in self.img_dir]
         self.gt_name_list = [os.listdir(idir) for idir in self.label_dir]
-
-        # keep file end with .jpg and .png
-        # remove file with illegal suffix such as .Ds_Store
-        for i in range(self.img_name_list.__len__()):
-            self.img_name_list[i] = list(filter(lambda x: x.split('.')[-1] == config.image_file_suffix, self.img_name_list[i]))
-        for i in range(self.gt_name_list.__len__()):
-            self.gt_name_list[i] = list(filter(lambda x: x.split('.')[-1] == config.ground_truth_suffix, self.gt_name_list[i]))
-
-        self._check_file()
-            
-
         self.img_path_list = [
             list(
                 map(lambda x: os.path.join(self.img_dir[idx], x),
@@ -119,18 +103,6 @@ class CoData(data.Dataset):
             transforms.Resize(self.size),
             transforms.ToTensor()
         ])
-
-    def _check_file(self):
-        # Make sure for each xxx.jpg in img_root/classx/
-        # there must exist xxx.png in gt_root/classx/
-        assert self.img_name_list.__len__() == self.gt_name_list.__len__()
-        for img_ls, gt_ls in zip(self.img_name_list, self.gt_name_list):
-            assert img_ls.__len__() == gt_ls.__len__(), f"file num not matched, expected {img_ls.__len__()}, but got {gt_ls.__len__()} \
-                the img_ls is {img_ls} and the gt_ls is {gt_ls}"
-            for img_file_name, gt_file_name in zip(img_ls, gt_ls):
-                assert img_file_name.split('.')[0] == gt_file_name.split('.')[0], f"filename not matched, expected {img_file_name.split('.')[0]} \
-                    but got {gt_file_name.split('.')[0]}"
-        
 
     def __getitem__(self, item):
         img_paths = self.img_path_list[item]
@@ -177,10 +149,9 @@ def get_loader(pin=False):
 TRAINING_LOADER = get_loader()
 
 if __name__ == "__main__":
-    idx = 0
-    for batch, (x, y) in enumerate(TRAINING_LOADER):
+    path = r"D:/MY/DataSet/CoSal2015/"
+    loader = get_loader()
+    for batch, (x, y) in enumerate(loader):
         print(x.size(), y.size())
-        idx = batch
-    print(idx)
-
+        break
 

@@ -50,7 +50,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from component.imagepath import *
 from component.transform import *
-from configurations import *
+from configuration.rgb_config import *
 
 
 class SecondDirectoryStructureDataLoader(Dataset):

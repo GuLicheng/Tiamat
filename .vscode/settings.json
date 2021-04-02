@@ -1,9 +1,15 @@
 {
-    "python.analysis.extraPaths": [
-        "./component",　　　　　　　　
-        "./loader",
-        "./model",
-        "./loss",
-        "./utils"
+    "python.pythonPath": "C:\\Users\\Administrator\\Anaconda3\\python.exe",
+    "cSpell.words": [
+        "cout"
     ]
-}
+} // Add your root into PYTHONPATH
+// {
+//     "python.analysis.extraPaths": [
+//         "./component",　　　　　　　　
+//         "./loader",
+//         "./model",
+//         "./loss",
+//         "./utils"
+//     ]
+// }

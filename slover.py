@@ -45,7 +45,7 @@ class Slover:
             print(f"ok for {epoch} epochs and loss is {loss.item()}")
             self.losses.append(loss.item())
             if epoch % 10 == 0:
-                self.save_model(f"./result/params{epoch // 10}.pkl", )
+                self.save_model(f"./result/params{epoch // 10}.pkl")
                 # torch.save(self.model.state_dict(), f"params{epoch // 100}.pkl")
         # model_object.load_state_dict(torch.load('params.pkl'))
 
