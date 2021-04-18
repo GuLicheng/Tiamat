@@ -42,8 +42,9 @@ class Transformer12(nn.Module):
     @staticmethod
     def test():
         net = Transformer12()
-        t = torch.randn(3, 256, 768)
-        print(net(t).size())
+        batch_size = 3
+        t = torch.randn(batch_size, 256, 768)
+        print(net(t).size())  # (3, 256, 768) with 3 batches, 256 patches and 768 channels
 
 
 if __name__ == "__main__":

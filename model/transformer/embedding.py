@@ -5,8 +5,8 @@ from torch.nn.functional import pad
 import torch.nn as nn
 import torch
 from model.transformer.config import Config
-
-
+from model.someblocks.resnet_block import ResNetBlock
+from model.saliencymap_generator import SaliencyMapGenerator
 class Embedding(nn.Module):
     def __init__(self, config: Config):
         super(Embedding, self).__init__()
@@ -42,37 +42,36 @@ class Embedding(nn.Module):
         t = model(t)
         print(t.size())
 
-class MultiScaleGenerator(nn.Module):
-    """Create three-scalar features map"""
-    def __init__(self, cin: int, couts: List[int], config: Config):
-        """
-            For input:(b, c, w, h), the output is(b, c1, w//2, h//2), (b, c2, w//4, h//4), (b, c3, w//8, h//8)
-            Paras:
-                couts: output channels for three-scalar
-        """
-        super(MultiScaleGenerator, self).__init__()
-        self.res1 = ResNetBlock(cin, couts[0])
-        self.res2 = ResNetBlock(couts[0], couts[1])
-        self.res3 = ResNetBlock(couts[1], couts[2])
-        self.pool = nn.MaxPool2d(kernel_size=2)
+class Decoder(nn.Module):
+    def __init__(self):
+        super(Decoder, self).__init__()
+        self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
+        self.conv1 = ResNetBlock(512, 256)
+        self.conv2 = ResNetBlock(256, 128)
+        self.conv3 = ResNetBlock(128, 64)
+        self.pred = SaliencyMapGenerator(64)
+        self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x: torch.Tensor):
-        feature0 = self.res1(x)
-        feature1 = self.pool(feature0)
-        feature0 = self.res2(feature0)
-        feature2 = self.pool(feature0)
-        feature0 = self.res3(feature0)
-        feature3 = self.pool(feature0)
-        return feature0, feature1, feature2, feature3
+    def forward(self, x, features):
+        x = self.upsample(x)
+        x = self.conv1(x)
+        x = x + features[0]
+        x = self.relu(x)
 
-    @staticmethod
-    def test():
-        model = MultiScaleGenerator(3, [64, 128, 256], Config())
-        t = torch.randn(1, 3, 256, 256)
-        (f0, f1, f2, f3) = model(t)
-        print(f0.size(), f1.size(), f2.size(), f3.size())
+        x = self.upsample(x)
+        x = self.conv2(x)
+        x = x + features[1]
+        x = self.relu(x)
+
+        x = self.upsample(x)
+        x = self.conv3(x)
+        x = x + features[2]
+        x = self.relu(x)
+
+        x = self.upsample(x)
+        x = self.pred(x)
+        return x
 
 
 if __name__ == "__main__":
     Embedding.test()
-    MultiScaleGenerator.test()

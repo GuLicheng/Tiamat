@@ -10,7 +10,8 @@ sys.path.append("./../")
 from PIL import Image
 from typing import *
 from torchvision import transforms
-from configurations import config
+# from configuration import config
+from configuration.rgb_config import config
 
 
 # read RGB pictures

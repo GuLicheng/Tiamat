@@ -10,7 +10,8 @@ class SaliencyMapGenerator(nn.Module):
         super(SaliencyMapGenerator, self).__init__()
         self.generator = nn.Sequential(
             nn.Conv2d(in_channels=channels, out_channels=1, kernel_size=1),
-            nn.Sigmoid()
+            # nn.Sigmoid()
+            nn.Tanh()
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

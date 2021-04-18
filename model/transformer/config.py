@@ -21,6 +21,8 @@ class Config:
         self.image_size = (256, 256)
         self.embedding_inchannels = 3
 
-        self.grid_size = (16, 16)
-        self.patch_num = 12
+        self.grid_size: int = (16, 16)
+        self.patch_num: int = 12
+        self.learning_rate: float = 1e-5
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         

@@ -2,11 +2,17 @@
 import os
 import torch.nn as nn
 from PIL import Image
+import numpy as np
 import torch
+from torch.quantization.quantize import convert
 from torch.utils import data
 from torchvision import transforms
 import random
 import dataclasses
+import cv2 as cv
+
+
+
 
 @dataclasses.dataclass(init=True, unsafe_hash=False, repr=True, eq=False, order=False, frozen=False)
 class Config:
@@ -42,31 +48,55 @@ class Config:
 
         """
 
-        # self.data_root = r"D:/MY/DataSet/CoSal2015/"
-        self.data_root = r"G:/COCO-SEG/train"
-        self.image_file_name = r"image"
-        self.ground_truth_name = r"groundtruth"
+        # self.data_root = r"G:/DataSet/CoSal2015"
+        self.data_root = r"G:/DataSet/CoSal2015"
+        self.image_file_name = r"Image"
+        self.ground_truth_name = r"GroundTruth"
 
         self.image_file_suffix = r"jpg"
-        self.ground_truth_suffix = r"jpg"
+        self.ground_truth_suffix = r"png"
 
         self.img_size = (256, 256)
         self.batch_size = 1
         self.num_thread = 0
-        self.sample_num = 1
+        self.sample_num = 3
 
 config = Config()
 
-class Debugger(nn.Module):
-    def __init__(self):
-        super(Debugger, self).__init__()
 
-    def forward(self, x):
-        """
-            Some operations for track x
-        """    
-        return x
+class ProcessImageForGroundTruth:
+    def __init__(self) -> None:
+        self.to_tensor = transforms.ToTensor()
 
+    def __call__(self, path: str):
+        image = cv.imread(path, cv.IMREAD_GRAYSCALE)
+        image = cv.resize(image, dsize=config.img_size)
+        image = self.to_tensor(image)
+        return image
+        
+
+
+
+class ProcessImageForRGB:
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.to_tensor = transforms.ToTensor()
+        self.normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                            std=[0.229, 0.224, 0.225])
+
+    def __call__(self, path: str):
+        image = cv.imread(path, cv.IMREAD_COLOR)
+        image = cv.resize(image, config.img_size)
+        image = self.to_tensor(image)
+        image = self.normalize(image)
+        return image
+
+    def flip(self, image):
+        horizon_mirror = cv.flip(image, 1)
+        vertical_mirror = cv.flip(image, 0)
+        spin_mirror = cv.flip(image, -1)
+        return [image, horizon_mirror, vertical_mirror, spin_mirror]
 
 class CoData(data.Dataset):
     def __init__(self):
@@ -108,17 +138,22 @@ class CoData(data.Dataset):
                     self.gt_name_list[idx]))
             for idx in range(len(self.label_dir))
         ]
-        self.img_transform = transforms.Compose([
-            transforms.Resize(self.size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
-        ])
+        # self.img_transform = transforms.Compose([
+        #     lambda x: Image.open(x).convert("RGB"),
+        #     transforms.Resize(self.size),
+        #     transforms.ToTensor(),
+        #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
+        #                          std=[0.229, 0.224, 0.225])
+        # ])
 
-        self.label_transform = transforms.Compose([
-            transforms.Resize(self.size),
-            transforms.ToTensor()
-        ])
+        # self.label_transform = transforms.Compose([
+        #     lambda x: Image.open(x).convert("L"),
+        #     transforms.Resize(self.size),
+        #     transforms.ToTensor()
+        # ])
+
+        self.img_transform = ProcessImageForRGB()
+        self.label_transform = ProcessImageForGroundTruth()
 
     def _check_file(self):
         # Make sure for each xxx.jpg in img_root/classx/
@@ -150,18 +185,22 @@ class CoData(data.Dataset):
         else:
             assert False, "Each group must greater than sample_num"
 
-        imgs = torch.Tensor(num, 3, self.size[0], self.size[1])
-        labels = torch.Tensor(num, 1, self.size[0], self.size[1])
+        img_ls, gt_ls = [], []
 
         for idx in range(num):
-            img = Image.open(img_paths[idx]).convert('RGB')
-            label = Image.open(label_paths[idx]).convert('L')
-            img = self.img_transform(img)
-            imgs[idx] = img
-            label = self.label_transform(label)
-            labels[idx] = label
+            imgs = self.img_transform(img_paths[idx])
+            img_ls.append(imgs)
+            gts = self.label_transform(label_paths[idx])
+            gt_ls.append(gts)
 
-        return imgs, labels
+        for i in range(len(img_ls)):
+            img_ls[i].unsqueeze_(0)
+        for i in range(len(gt_ls)):
+            gt_ls[i].unsqueeze_(0)
+
+        images = torch.cat(img_ls, dim=0)
+        ground_truths = torch.cat(gt_ls, dim=0)
+        return images, ground_truths
 
     def __len__(self):
         return len(self.class_list)
@@ -169,7 +208,7 @@ class CoData(data.Dataset):
 def get_loader(pin=False):
     shuffle = True
     dataset = CoData()
-    data_loader = data.DataLoader(dataset=dataset, batch_size = config.batch_size, shuffle=shuffle, num_workers=config.num_thread, pin_memory=pin)
+    data_loader = data.DataLoader(dataset=dataset, batch_size=config.batch_size, shuffle=shuffle, num_workers=config.num_thread, pin_memory=pin)
 
     return data_loader
 
@@ -179,7 +218,7 @@ TRAINING_LOADER = get_loader()
 if __name__ == "__main__":
     idx = 0
     for batch, (x, y) in enumerate(TRAINING_LOADER):
-        print(x.size(), y.size())
+        print(f"image size is {x.size()}, and ground truth size is {y.size()}")
         idx = batch
     print(idx)
 

@@ -21,13 +21,21 @@ class ResNetBlock(nn.Module):
         self.conv2 = nn.Conv2d(self.cmid, cout, 3, 1, 1)
         self.conv3 = nn.Conv2d(cin, cout, 3, 1, 1)
 
+        self._init_weight()
+
     def forward(self, x: torch.Tensor):
         y = self.conv3(x)
         x = self.conv1(x)
         x = self.batch_norm(x)
         x = self.relu(x)
         x = self.conv2(x)
-        return self.relu(x + y)
+        x = x + y
+        return self.relu(x)
+
+    def _init_weight(self):
+        nn.init.xavier_normal_(self.conv1.weight)
+        nn.init.xavier_normal_(self.conv2.weight)
+        nn.init.xavier_normal_(self.conv3.weight)
 
     @staticmethod
     def Test():

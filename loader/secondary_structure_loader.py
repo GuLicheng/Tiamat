@@ -38,8 +38,6 @@
         but a three-level directory structure(all the file name must be the same).
 """
 from os import path
-import sys
-sys.path.append("..")
 
 import csv
 import functools
@@ -47,10 +45,12 @@ import operator
 import os
 
 from torch.utils.data import Dataset, DataLoader
-
-from component.imagepath import *
-from component.transform import *
-from configuration.rgb_config import *
+from typing import *
+from torchvision import transforms
+from PIL import Image
+# from component.imagepath import *
+# from component.transform import *
+# from configuration.rgb_config import *
 
 
 class SecondDirectoryStructureDataLoader(Dataset):
@@ -215,18 +215,18 @@ class SecondDirectoryStructureDataLoader(Dataset):
             print(len(self.tfs), len(self.dirs), len(self.suffixes))
             assert False, "Not satisfied len(self.tfs) == len(self.dirs) == len(self.suffixes)"
 
-"""the test_loader exported finally"""
-TEST_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
-    mode="test",
-    root=config.secondary_directory_test_root,
-    dirs=config.secondary_directory_test_paths,
-    tfs=TEST_TRANSFORMS,
-    suffixes=config.secondary_directory_test_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)
+# """the test_loader exported finally"""
+# TEST_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
+#     mode="test",
+#     root=config.secondary_directory_test_root,
+#     dirs=config.secondary_directory_test_paths,
+#     tfs=TEST_TRANSFORMS,
+#     suffixes=config.secondary_directory_test_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)
 
-""""the train_loader exported finally"""
-TRAIN_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
-    mode="train",
-    root=config.secondary_directory_train_root,
-    dirs=config.secondary_directory_train_paths,
-    tfs=TRAIN_TRANSFORMS,
-    suffixes=config.secondary_directory_train_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)
+# """"the train_loader exported finally"""
+# TRAIN_LOADER = DataLoader(SecondDirectoryStructureDataLoader(
+#     mode="train",
+#     root=config.secondary_directory_train_root,
+#     dirs=config.secondary_directory_train_paths,
+#     tfs=TRAIN_TRANSFORMS,
+#     suffixes=config.secondary_directory_train_suffixes), batch_size=config.batch_size, num_workers=config.num_workers)

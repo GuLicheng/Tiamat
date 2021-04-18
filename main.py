@@ -1,21 +1,15 @@
 import cv2 as cv
-import torch
-import torch.optim
-import torch.nn.functional as F
-import torch.nn as nn
 import numpy as np
-import math
 
-def layer(x: int) -> torch.Tensor:
-    w = int(math.sqrt(x // 3))
-    return torch.arange(x).float().view((1, 3, w, -1))
+path = r"C:\Users\Administrator\Pictures\Saved Pictures\01.jpg"
+img = cv.imread(path)
+img = cv.resize(img, (256, 256))
+img1 = cv.flip(img, 1)
+img2 = cv.flip(img, 0)
+img3 = cv.flip(img, -1)
+# cv.imshow("picture", img1)
+imgs = [img, img1, img2, img3]
 
-l1 = layer(12).mean(dim=(-1, -2))
-l2 = layer(12).mean(-1).mean(-1)
-l3 = layer(12).mean(dim=3).mean(dim=2)
-print(l1)
-print(l2)
-print(l3)
-
-
-
+imgs = np.hstack(imgs)
+cv.imshow("sadasd", imgs)
+cv.waitKey(0)

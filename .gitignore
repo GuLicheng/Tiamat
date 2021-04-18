@@ -4,6 +4,7 @@ __pycache__
 
 # setting
 .idea
+*.xml
 # .vscode
 
 # useless
@@ -11,3 +12,5 @@ __pycache__
 *.jpg
 *.png
 *.pkl
+*.txt
+
