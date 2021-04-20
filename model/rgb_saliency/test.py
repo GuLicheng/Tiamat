@@ -112,7 +112,7 @@ loader = DataLoader(
 
 def train():
     model = TestNet()
-    # model.load_state_dict(torch.load(r"D:\MY\SOD\Tiamat\result\params4.pkl"))
+    model.load_state_dict(torch.load(r"./result/params_finally.pkl"))
     model.train()
     model = model.cuda()
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-4, weight_decay=1e-5)
@@ -141,7 +141,7 @@ def train():
 
 def test():
     model = TestNet()
-    model.load_state_dict(torch.load(r"D:\MY\SOD\Tiamat\result\params4.pkl"))
+    model.load_state_dict(torch.load(r"./result/params_finally.pkl"))
     model.eval()
     # with torch.no_grad()
     cnt = 10
@@ -161,5 +161,5 @@ def test():
             exit()
 
 if __name__ == "__main__":
-    # test()
-    train()
+    test()
+    # train()
