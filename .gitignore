@@ -4,7 +4,7 @@ __pycache__
 
 # setting
 .idea
-# .vscode
+.vscode
 
 # useless
 *.csv
