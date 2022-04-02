@@ -175,6 +175,20 @@ class CenterCrop(OperationForMiltiObject):
 
         return sample
 
+class ColorJitterImage(OperationForMiltiObject):
+
+    def __init__(self, brightness, contrast, saturation, hue, args=["image"]) -> None:
+        super().__init__(args)
+
+        self.fn = transforms.ColorJitter(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue)
+
+    def __call__(self, sample):
+
+        for name in self.args:
+            sample[name] = self.fn(sample[name])
+
+        return sample
+
 
 
 """Here are some pipelines"""
@@ -182,6 +196,7 @@ IMAGE_LEVEL_TRAIN = transforms.Compose([
     ReadImage(),
     RandomScaleCropMulti(args=["image"], scale=(0.5, 1.5), size=((512, 512))),
     RandomHorizontalFlipMulti(args=["image"]),
+    ColorJitterImage(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
     ToTensorMulti(args=["image"]),
     NormalizeImage(args=["image"]),
 ])
