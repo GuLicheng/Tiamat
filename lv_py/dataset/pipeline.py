@@ -32,7 +32,7 @@ RESIZE_MODE = {
     "saliency": InterpolationMode.NEAREST,
 }
 
-class OperationForMiltiObject:
+class OperationFilter:
 
     def __init__(self, args: List[str]) -> None:
         self.args = args
@@ -41,7 +41,7 @@ class OperationForMiltiObject:
         for key in args: assert key in KEYS, f"Expected one of {KEYS}, but got {key}"
         assert "image" in args, f" key `image` must be contained "
 
-class ResizeMilti(OperationForMiltiObject):
+class Resize(OperationFilter):
 
     def __init__(self, args: List[str], size: Tuple[int, int]) -> None:
         super().__init__(args)
@@ -61,7 +61,7 @@ class ResizeMilti(OperationForMiltiObject):
 
         return sample
 
-class RandomHorizontalFlipMulti(OperationForMiltiObject):
+class RandomHorizontalFlip(OperationFilter):
 
     def __init__(self, args, ratio = 0.5) -> None:
         super().__init__(args)
@@ -76,7 +76,7 @@ class RandomHorizontalFlipMulti(OperationForMiltiObject):
 
         return sample
 
-class RandomScaleCropMulti(OperationForMiltiObject):
+class RandomScaleCrop(OperationFilter):
 
     def __init__(self, args, size: Tuple[int, int], scale=(0.5, 2.0), ratio=(3. / 4., 4. / 3.)):
         super().__init__(args)
@@ -94,7 +94,7 @@ class RandomScaleCropMulti(OperationForMiltiObject):
 
         return sample
 
-class ToTensorMulti(OperationForMiltiObject):
+class ToTensor(OperationFilter):
 
     def __init__(self, args) -> None:
         super().__init__(args)
@@ -114,7 +114,7 @@ class ToTensorMulti(OperationForMiltiObject):
 
         return sample
 
-class NormalizeImage(OperationForMiltiObject):
+class NormalizeImage(OperationFilter):
     # (standardization)
     # MEAN = (0.485, 0.456, 0.406)
     # STD = (0.229, 0.224, 0.225)
@@ -123,7 +123,7 @@ class NormalizeImage(OperationForMiltiObject):
     MEAN = [123.675, 116.28, 103.53]
     STD = [58.395, 57.12, 57.375]
 
-    # image after ToTensorMulti will not scaled to [0, 1] with type np.uint8
+    # image after ToTensor will not scaled to [0, 1] with type np.uint8
 
     def __init__(self, args = ["image"], mean = MEAN, std = STD) -> None:
         super().__init__(args)
@@ -162,7 +162,7 @@ class ReadAnnonation:
         sample[self.key] = Image.open(anno_path)
         return sample
 
-class CenterCrop(OperationForMiltiObject):
+class CenterCrop(OperationFilter):
 
     def __init__(self, args: List[str], size: Tuple[int, int]) -> None:
         super().__init__(args)
@@ -175,7 +175,7 @@ class CenterCrop(OperationForMiltiObject):
 
         return sample
 
-class ColorJitterImage(OperationForMiltiObject):
+class ColorJitterImage(OperationFilter):
 
     def __init__(self, brightness, contrast, saturation, hue, args=["image"]) -> None:
         super().__init__(args)
@@ -194,32 +194,32 @@ class ColorJitterImage(OperationForMiltiObject):
 """Here are some pipelines"""
 IMAGE_LEVEL_TRAIN = transforms.Compose([
     ReadImage(),
-    RandomScaleCropMulti(args=["image"], scale=(0.5, 1.5), size=((512, 512))),
-    RandomHorizontalFlipMulti(args=["image"]),
+    RandomScaleCrop(args=["image"], scale=(0.5, 1.0), size=((512, 512))),
+    RandomHorizontalFlip(args=["image"]),
     ColorJitterImage(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
-    ToTensorMulti(args=["image"]),
+    ToTensor(args=["image"]),
     NormalizeImage(args=["image"]),
 ])
 
 IMAGE_LEVEL_VAL = transforms.Compose([
     ReadImage(),
-    ToTensorMulti(args=["image"]),
+    ToTensor(args=["image"]),
     NormalizeImage(),
 ])
 
 SEMANTIC_TRAIN = transforms.Compose([
     ReadImage(),
     ReadAnnonation(),
-    RandomHorizontalFlipMulti(args=["image", "semantic"]),
-    RandomScaleCropMulti(args=["image", "semantic"], size=((512, 512))),
-    ToTensorMulti(args=["image", "semantic"]),
+    RandomHorizontalFlip(args=["image", "semantic"]),
+    RandomScaleCrop(args=["image", "semantic"], size=((512, 512))),
+    ToTensor(args=["image", "semantic"]),
     NormalizeImage(),
 ])
 
 SEMANTIC_VAL = transforms.Compose([
     ReadImage(),
     ReadAnnonation(),
-    ToTensorMulti(args=["image", "semantic"]),
+    ToTensor(args=["image", "semantic"]),
     NormalizeImage(),
 ])
 
