@@ -1,6 +1,6 @@
 # dir
 __pycache__
-
+build
 
 # setting
 .idea
@@ -8,10 +8,9 @@ __pycache__
 
 # useless
 *.csv
-*.jpg
-*.png
 *.pkl
 *.txt
 *.pth
 *.xml
+*.pyd
 
