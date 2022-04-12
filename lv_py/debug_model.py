@@ -13,6 +13,7 @@ def segmenter():
 
 if __name__ == "__main__":
 
+
     input_tensor = torch.randn(2, 3, 500, 375)
 
     model = segmenter()

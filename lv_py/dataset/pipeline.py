@@ -151,7 +151,7 @@ class ReadImage:
         sample[self.key] = Image.open(image_path).convert("RGB")
         return sample
 
-class ReadAnnonation:
+class ReadAnnotation:
 
     def __init__(self, key = "semantic"):
         self.key = key
@@ -191,35 +191,5 @@ class ColorJitterImage(OperationFilter):
 
 
 
-"""Here are some pipelines"""
-IMAGE_LEVEL_TRAIN = transforms.Compose([
-    ReadImage(),
-    RandomScaleCrop(args=["image"], scale=(0.5, 1.0), size=((512, 512))),
-    RandomHorizontalFlip(args=["image"]),
-    ColorJitterImage(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
-    ToTensor(args=["image"]),
-    NormalizeImage(args=["image"]),
-])
 
-IMAGE_LEVEL_VAL = transforms.Compose([
-    ReadImage(),
-    ToTensor(args=["image"]),
-    NormalizeImage(),
-])
-
-SEMANTIC_TRAIN = transforms.Compose([
-    ReadImage(),
-    ReadAnnonation(),
-    RandomHorizontalFlip(args=["image", "semantic"]),
-    RandomScaleCrop(args=["image", "semantic"], size=((512, 512))),
-    ToTensor(args=["image", "semantic"]),
-    NormalizeImage(),
-])
-
-SEMANTIC_VAL = transforms.Compose([
-    ReadImage(),
-    ReadAnnonation(),
-    ToTensor(args=["image", "semantic"]),
-    NormalizeImage(),
-])
 

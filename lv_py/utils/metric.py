@@ -1,7 +1,5 @@
 import numpy as np
 import torch
-import functools
-import operator
 
 
 class Evaluator(object):

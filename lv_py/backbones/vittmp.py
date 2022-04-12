@@ -123,7 +123,7 @@ class PatchEmbed(nn.Module):
         self.img_size = img_size
         self.patch_size = patch_size
         self.num_patches = num_patches
-
+        self.grid_size = (img_size // patch_size, img_size // patch_size)
         self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size)
 
     def forward(self, x):
@@ -227,27 +227,10 @@ class VisionTransformer(nn.Module):
         return x
 
     def forward(self, x):
-        return self.forward_backup(x)
-
-    def get_last_selfattention(self, x):
-        x = self.prepare_tokens(x)
-        for i, blk in enumerate(self.blocks):
-            if i < len(self.blocks) - 1:
-                x = blk(x)
-            else:
-                # return attention of the last block
-                return blk(x, return_attention=True)
-
-    def get_intermediate_layers(self, x, n=1):
-        x = self.prepare_tokens(x)
-        # we return the output tokens from the `n` last blocks
-        output = []
-        for i, blk in enumerate(self.blocks):
-            x = blk(x)
-            if len(self.blocks) - i <= n:
-                output.append(self.norm(x))
-        return output
-
+        B, C, H, W = x.shape
+        x = self.forward_return_all_patch(x)[:, 1:] # remove cls_token
+        x = x.permute(0, 2, 1).view(B, -1, H // self.patch_size, W // self.patch_size)
+        return x
 
     def resize_pos_embed(self, posemb, grid_old_shape, grid_new_shape, num_extra_tokens):
         # Rescale the grid of position embeddings when loading from state_dict. Adapted from
@@ -302,6 +285,7 @@ class VisionTransformer(nn.Module):
             from timm.models.vision_transformer import _load_weights
             _load_weights(self, pretrained_path)
             print("Load Imagenet")
+
 
 
 def check_params_matching(target_params, state_dict):
