@@ -2,22 +2,6 @@ from typing import Callable, Iterator, Iterable
 import functools
 import itertools
 
-class CounterIterator(Iterator):
-
-    def __init__(self, n: int) -> None:
-        super().__init__()
-        self.cur = 0
-        self.sentinel = n
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.cur == self.sentinel:
-            raise StopIteration()
-        self.cur += 1
-        return self.cur
-
 class Sequence:
     """
         Simple linq that may not very efficient since python's iterator is just forward iterator
@@ -49,9 +33,10 @@ class Sequence:
     def exec(self):
         if not isinstance(self.ls, list):
             self.ls = list(self.ls)
+        return self
     
     def take(self, n: int):
-        self.ls = map(lambda x: x[1], zip(CounterIterator(n), self.ls))
+        self.ls = map(lambda x: x[1], zip(range(n), self.ls))
         return self
 
     def skip(self, n: int):
@@ -66,16 +51,18 @@ class Sequence:
         return self
         
     def reverse(self):
-        self.ls = list(self.ls)
-        self.ls.reverse()
+        try:
+            self.ls = reversed(self.ls)
+        except:
+            self.exec()
+            self.ls = reversed(self.ls)
         return self
 
-    def zip(self, sequence: Iterable):
+    def zip_with(self, sequence: Iterable):
         self.ls = zip(self.ls, sequence)
         return self
 
     def distinct(self):
-        self.exec()
         self.ls = list(set(self.ls)) 
         return self
 
@@ -91,13 +78,20 @@ class Sequence:
         self.exec()
         return self.ls[-1]
 
+    def add_enumerate(self):
+        self.ls = enumerate(self.ls)
+        return self
 
 
 def make_sequence(sequence: Iterable):
     return Sequence(list(sequence))
 
 if __name__ == "__main__":
-    seq = make_sequence([1, 2, 3, 3, 3, 3, 3, 3]).distinct().concat([-1, -2]).for_each(print)
 
+    seq = make_sequence([1, 2, 3]) \
+        .concat([-1, -2]) \
+        .add_enumerate() \
+        .take(4) \
+        .reverse() \
+        .for_each(print)
 
-    for val in CounterIterator(4): print(val)
