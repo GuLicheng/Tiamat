@@ -149,6 +149,7 @@ class PascalVoc(Dataset):
             rgb = cv.cvtColor(rgb, cv.COLOR_RGB2BGR)
         return rgb
 
+
     @staticmethod
     def show_image(image: torch.Tensor) -> np.ndarray:
 
