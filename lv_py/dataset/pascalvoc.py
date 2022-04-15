@@ -1,3 +1,4 @@
+import itertools
 from typing import Iterable
 import numpy as np
 import cv2 as cv
@@ -233,7 +234,7 @@ class PascalVoc(Dataset):
         def make_scribble_from_xml(xml: str, thickness: int = 3, unlabeled: int = 255):
 
             def pairwise(iterable):
-                import itertools
+                
                 a, b = itertools.tee(iterable)
                 next(b, None)
                 return zip(a, b)
@@ -271,7 +272,7 @@ class PascalVoc(Dataset):
     @staticmethod
     def make_PIL(image: np.ndarray, dest: str, name: str):
 
-        import itertools
+        
         palette = itertools.chain(
             itertools.chain.from_iterable(PascalVoc.PALETTE),
             itertools.repeat(255, 3 * (256 - PascalVoc.NUM_CLASSES)),  # fill (255, 255, 255) for unknown class
