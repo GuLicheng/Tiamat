@@ -232,6 +232,16 @@ class VisionTransformer(nn.Module):
         x = x.permute(0, 2, 1).view(B, -1, H // self.patch_size, W // self.patch_size)
         return x
 
+    def forward_with_patch_and_class_token(self, x):
+        B, C, H, W = x.shape
+        x = self.forward_return_all_patch(x) # remove cls_token
+        class_token = x[:,0]
+        x = x[:, 1:]
+        x = x.permute(0, 2, 1).view(B, -1, H // self.patch_size, W // self.patch_size)
+        return x, class_token
+
+
+
     def resize_pos_embed(self, posemb, grid_old_shape, grid_new_shape, num_extra_tokens):
         # Rescale the grid of position embeddings when loading from state_dict. Adapted from
         # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224

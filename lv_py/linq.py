@@ -51,11 +51,9 @@ class Sequence:
         return self
         
     def reverse(self):
-        try:
-            self.ls = reversed(self.ls)
-        except:
+        if not hasattr(self.ls, "__reversed__"):
             self.exec()
-            self.ls = reversed(self.ls)
+        self.ls = reversed(self.ls)
         return self
 
     def zip_with(self, sequence: Iterable):
@@ -82,6 +80,9 @@ class Sequence:
         self.ls = enumerate(self.ls)
         return self
 
+    def sum(self):
+        return sum(self.ls)
+
 
 def make_sequence(sequence: Iterable):
     return Sequence(list(sequence))
@@ -93,5 +94,6 @@ if __name__ == "__main__":
         .add_enumerate() \
         .take(4) \
         .reverse() \
-        .for_each(print)
+        .select(lambda x: x[1]) \
+        .for_each(print) 
 

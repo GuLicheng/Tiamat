@@ -1,3 +1,4 @@
+from typing import Iterable
 import numpy as np
 import cv2 as cv
 from torch.utils.data import Dataset
@@ -71,6 +72,10 @@ class PascalVoc(Dataset):
         else:
             return self._getitem(index)
 
+    def reset(self, splits: Iterable[str]):
+        self.splits = list(splits)
+        self.images, self.semantics, self.class_labels, self.saliency = [None] * 4
+        self._collect_images()._collect_semantic()._collect_class_label()._collect_saliency()
 
     def _slice(self, index):
         """

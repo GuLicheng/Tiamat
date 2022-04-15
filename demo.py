@@ -17,13 +17,6 @@ def label_expand(superpixel: np.ndarray, label: np.ndarray, superpixel_num: np.n
         pred[superpixel == i] = max(counter, key=lambda x: counter[x]) if counter else ignore_index
     return np.uint8(pred)
 
-"""
-py::arg("superpixel"), py::arg("label"), py::arg("superpixel_num"), py::arg("ignore_index")
-"""
-def label_expand_cpp(superpixel: np.ndarray, label: np.ndarray, superpixel_num: np.ndarray, ignore_index: int = 255):
-    result = cpp.label_expand(superpixel=superpixel, label=label, superpixel_num=superpixel_num, ignore_index=ignore_index)
-    return result
-
 def test_superpixel():
     image = cv.imread("images/2007_000032.jpg")
     scribble = cv.imread("images/2007_000032.png", cv.IMREAD_GRAYSCALE)
