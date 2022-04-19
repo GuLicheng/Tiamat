@@ -79,7 +79,7 @@ class Cls_Accuracy():
         self.correct = 0
 
 
-class BER_Evaluate:
+class BER_Evaluator:
 
     def __init__(self, threshold = 0.5) -> None:
         self.threshold = threshold

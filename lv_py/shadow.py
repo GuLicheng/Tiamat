@@ -10,7 +10,7 @@ import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 from utils.logger import Logger, AverageMeter
-from utils.metric import BER_Evaluate
+from utils.metric import BER_Evaluator
 import torch.multiprocessing as mp
 
 def train_one_epoch(args, rank, epoch, dataloader, model, device, optimizer, scheduler, logger):
@@ -50,7 +50,7 @@ def test_after_one_epoch(args, rank, epoch, dataloader, model, device, logger):
     tbar = tqdm(dataloader, dynamic_ncols=True)
     model = model.eval()
 
-    evaluator = BER_Evaluate()
+    evaluator = BER_Evaluator()
 
     for idx, sample in enumerate(tbar):
 
@@ -86,7 +86,7 @@ def single_gpu_test(args):
 
     dataset = SBU(args.test_image_root, pipeline=SBU.SALIENCY_VAL)
 
-    e = BER_Evaluate()
+    e = BER_Evaluator()
 
     for sample in tqdm(dataset):
 
