@@ -31,8 +31,6 @@ def train_one_epoch(args, rank, epoch, dataloader, model, device, optimizer, sch
 
         logits = model(image)
 
-        target /= 255
-
         loss = F.binary_cross_entropy_with_logits(logits, target[:, None, :, :].detach())
 
         loss.backward()
@@ -59,10 +57,10 @@ def test_after_one_epoch(args, rank, epoch, dataloader, model, device, logger):
         image, target = sample["image"].to(device), sample["saliency"].to(device)
         with torch.no_grad():
             logits = model(image)
-        evaluator.update(logit=logits.sigmoid().detach().cpu().numpy(), 
-            label=(target[:, None, :, :]/255).detach().cpu().numpy())
+        evaluator.update(pred=logits.sigmoid().detach().cpu().numpy(), 
+            gt=target[:, None, :, :].cpu().numpy())
 
-    acc_final, final_BER, pErr, nErr = evaluator.calculate_ber()
+    acc_final, final_BER, pErr, nErr = evaluator.calculate()
     logger.info(f"Testing: BER = {final_BER:.2f}")
     torch.save(model.state_dict(), f"{args.work_dir}/{epoch}.pth")
 
@@ -167,7 +165,7 @@ def main(rank, args):
         )
 
     from utils.poly_scheduler import PolynomialLRDecay
-    scheduler = PolynomialLRDecay(optimizer=optimizer, max_decay_steps=args.epochs, end_learning_rate=0, power=0.9)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs, eta_min=0)
 
     for epoch in range(args.epochs):
         
@@ -195,9 +193,9 @@ if __name__ == "__main__":
     # parser.add_argument('--gpus', type=str, default="[0, 1]", type=eval)
     parser.add_argument('--cuda_visible_devices', type=str, default="0,1,2,3")
     parser.add_argument("--work_dir", default="work_dir_tmp", type=str)
-    parser.add_argument("--lr", type=float, default=3e-5, help="learning rate")
+    parser.add_argument("--lr", type=float, default=1e-5, help="learning rate")
     parser.add_argument("--batch_size", type=int, default=2, help="batch size")
-    parser.add_argument("--epochs", type=int, default=30, help="epoch num")
+    parser.add_argument("--epochs", type=int, default=40, help="epoch num")
     parser.add_argument("--weight_decay", type=float, default=1e-5, help="weight_decay")
     parser.add_argument("--num_workers", type=int, default=0, help="num_workers")
     parser.add_argument("--seed", type=int, default=17, help="seed for random number")

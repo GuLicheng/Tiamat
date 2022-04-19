@@ -103,13 +103,13 @@ class BER_Evaluate:
         countTN = tn.sum()
 
 
-        FP += ((posPoints) & (pred > self.threshold)).sum()
-        FN += ((negPoints) & (pred < self.threshold)).sum()
+        self.FP += ((posPoints) & (pred > self.threshold)).sum()
+        self.FN += ((negPoints) & (pred < self.threshold)).sum()
 
-        TP += countTP
-        TN += countTN
-        POS += countPos
-        NEG += countNeg
+        self.TP += countTP
+        self.TN += countTN
+        self.POS += countPos
+        self.NEG += countNeg
 
     def calculate(self):
 
