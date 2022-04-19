@@ -31,30 +31,8 @@ class Classifier(nn.Module):
         self.backbone = backbone
         self.classifier = classifier
 
-    def forwardV2(self, x, return_cam = False):
 
-        vit_outputs, class_token = self.backbone.forward_with_patch_and_class_token(x)
-
-        B, C, H, W = vit_outputs.shape
-
-        x1 = vit_outputs.permute(0, 2, 3, 1).contiguous().view(B, H * W, C)
-        x2 = self.classifier.weight.view(20, 384)
-
-        x = cosine_similarity(x1, x2).permute(0, 2, 1).view(B, -1, H, W)
-
-        # logit = self.fc(x)
-        logit = cosine_similarity(class_token, x2)
-
-        if return_cam:
-            return {
-                "cam": x,
-                "pred_cls": logit,
-            }
-
-
-        return logit
-
-    def forward(self, x, return_cam = False):
+    def forward(self, x, return_cam = False, sal = None):
     
         vit_outputs = self.backbone(x)
 
@@ -67,7 +45,7 @@ class Classifier(nn.Module):
 
         x = cosine_similarity(x1, x2).permute(0, 2, 1).view(B, -1, H, W)
 
-        logit = self.fc(x)
+        logit = self.fc(x, sal)
 
         if return_cam:
             return {
@@ -79,16 +57,26 @@ class Classifier(nn.Module):
         return logit
 
 
-    def fc(self, x):
-        x = F.avg_pool2d(x, kernel_size=(x.size(2), x.size(3)), padding=0)
-        x = x.view(-1, 20)
-        return x
+    def fc(self, x, sal = None):
+        if sal is None:
+            x = F.avg_pool2d(x, kernel_size=(x.size(2), x.size(3)), padding=0)
+            return x.view(-1, 20)
+        else:
+            # sal = F.interpolate(sal[None, :, :], size=x.shape[-2:], mode="nearest")[0][0]
+            # cloned = x.detach().clone()
+
+            cloned = F.interpolate(x, mode="bilinear", size=sal.shape[-2:])
+            sal = sal[0]
+
+            for i in range(cloned.shape[1]):
+                cloned[0][i][sal == 0] = 0
+            return cloned.mean((-1, -2))
 
     def cam_normalize(self, cam, size, label):
         cam = F.relu(cam)
         cam = F.interpolate(cam, size=size, mode='bilinear', align_corners=False)
+
         cam /= F.adaptive_max_pool2d(cam, 1) + 1e-5
-        
         cam = cam * label[:, :, None, None] # clean
         
         return cam
@@ -127,13 +115,11 @@ def test_after_one_epoch(args, rank, dataloader, model: Classifier, device, logg
         image, target, sal, gt = \
             sample["image"].to(device), sample["class"].to(device), sample["saliency"].to(device), sample["semantic"]
         with torch.no_grad():
-            result = model(image, return_cam = True)
+            result = model(image, return_cam = True, sal = sal)
 
 
         logits = result["pred_cls"]
         pred = logits.detach()
-
-
 
         cam = result["cam"]
         cam = model.cam_normalize(cam, image.shape[-2:], pred)[0].argmax(dim=0) + 1
@@ -181,26 +167,11 @@ def test_specialize_class(dataloader, model, device, logger, classes):
         cam = result["cam"]
         cam = model.cam_normalize(cam, image.shape[-2:], pred)[0].argmax(dim=0) + 1
 
-        cam[sal[0] == 0] = 0
-        
-        pre_image = cam.cpu().detach().numpy()
-
         name = sample["ori_name"][0] 
 
         for cls_id in classes:
             if target[0][cls_id] == 1:
                 logger.info(f"name = {name}, pred_cls = {pred.cpu().numpy()}")
-                ls = list(zip(PascalVoc.CAT_LIST, pred.cpu().numpy().flatten()))
-                ls.sort(key=lambda x: x[1])
-                for val in ls:
-                    print(f"{val[0]}: {val[1]:.4f}")
-                cv.imshow("0", PascalVoc.show_image(image))
-                res = F.relu(result["cam"][0][cls_id])
-                res = F.interpolate(res[None, None, :, :], size=image.shape[-2:], mode="bilinear", align_corners=False)[0][0]
-                cv.imshow("1", np.uint8(min_max_norm(res).cpu().detach().numpy() * 255))
-                cv.imshow("3", PascalVoc.decode_segmap(pre_image))
-                cv.waitKey(0)
-                
 
 
 def make_prototype(trainset, backbone, device):
@@ -216,6 +187,7 @@ def make_prototype(trainset, backbone, device):
 
         with torch.no_grad():
             cls_token = backbone.forward_backup(image)
+            # cls_token = backbone.forward(image).mean(dim=(-1, -2))
 
         cls_tokens.append(cls_token)
 
@@ -225,12 +197,12 @@ def make_prototype(trainset, backbone, device):
 
 def main():
 
-    parser = dataset_cfg.laboratory()
+    parser = dataset_cfg.MY77()
 
-    parser.add_argument("--lowshot_txt", default=r"D:\code\Tiamat\ori20.txt")
+    parser.add_argument("--lowshot_txt", default="/home/zeyu_yan/20.txt")
+    parser.add_argument("--dino_pretrain", default="/home/zeyu_yan/.cache/torch/hub/checkpoints/dino_deitsmall16_pretrain.pth")
     parser.add_argument("--imagenet_pretrain", 
-        # default="/home/zeyu_yan/.cache/torch/hub/checkpoints/S_16-i21k-300ep-lr_0.001-aug_light1-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_384.npz")
-        default=r"D:\ckpt\S_16-i21k-300ep-lr_0.001-aug_light1-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_384.npz")
+        default="/home/zeyu_yan/.cache/torch/hub/checkpoints/S_16-i21k-300ep-lr_0.001-aug_light1-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_384.npz")
 
     args = parser.parse_args()
 
@@ -250,7 +222,7 @@ def main():
         class_label=args.image_level_npy, 
         pipeline=pipeline)
 
-    testloader = DataLoader(valset, batch_size=1, pin_memory=True, num_workers=0)
+    testloader = DataLoader(valset, batch_size=1, pin_memory=False, num_workers=0)
 
     trainset = PascalVoc(
         img_dir=args.image_directory, 
@@ -276,9 +248,9 @@ def main():
     model = model.eval()
 
 
-    logger = Logger("./")
-    # test_after_one_epoch(args, 0, testloader, model, 0, logger)
-    test_specialize_class(testloader, model, 0, logger, [8])
+    # logger = Logger("./")
+    test_after_one_epoch(args, 0, testloader, model, 0, None)
+    # test_specialize_class(testloader, model, 0, logger, [8])
 
 
 if __name__ == "__main__":
