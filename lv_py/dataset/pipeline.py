@@ -39,7 +39,7 @@ class OperationFilter:
         
         # check keys
         for key in args: assert key in KEYS, f"Expected one of {KEYS}, but got {key}"
-        assert "image" in args, f" key `image` must be contained "
+        assert len(self.args) > 0
 
 class Resize(OperationFilter):
 
@@ -138,28 +138,43 @@ class NormalizeImage(OperationFilter):
 
         return sample
 
-class ReadImage:
+class ReadImage(OperationFilter):
 
-    def __init__(self, key = "image") -> None:
-        self.key = key
+    def __init__(self, args = ["image"]) -> None:
+        super().__init__(args)
 
     def __call__(self, sample: dict):
 
-        image_path = sample[self.key]
+        for arg in self.args:
 
-        sample.update(image_path=image_path)
-        sample[self.key] = Image.open(image_path).convert("RGB")
+            image_path = sample[arg]
+            sample[f"{arg}_path"] = image_path 
+            sample[arg] = Image.open(image_path).convert("RGB")
+
         return sample
 
-class ReadAnnotation:
+class ReadAnnotation(OperationFilter):
 
-    def __init__(self, key = "semantic"):
-        self.key = key
+    def __init__(self, args = ["semantic"]) -> None:
+        super().__init__(args)
 
     def __call__(self, sample):
-        anno_path = sample[self.key]
-        sample[f"{self.key}_path"] = anno_path 
-        sample[self.key] = Image.open(anno_path)
+                
+        for arg in self.args:
+            anno_path = sample[arg]
+            sample[f"{arg}_path"] = anno_path 
+            sample[arg] = Image.open(anno_path)
+        return sample
+
+class NormalizeSaliencyMap(OperationFilter):
+
+    def __init__(self, args = ["saliency"]) -> None:
+        super().__init__(args)
+
+    def __call__(self, sample):
+        
+        sample["saliency"] /= 255.0
+
         return sample
 
 class CenterCrop(OperationFilter):

@@ -208,8 +208,8 @@ def main():
 
     pipeline = transforms.Compose([
         ReadImage(),
-        ReadAnnotation(key="saliency"),
-        ReadAnnotation(key="semantic"),
+        ReadAnnotation(args=["saliency"]),
+        ReadAnnotation(args=["semantic"]),
         ToTensor(args=["image", "saliency", "semantic"]),
         NormalizeImage(),
     ])

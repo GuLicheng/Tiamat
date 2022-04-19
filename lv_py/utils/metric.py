@@ -78,3 +78,51 @@ class Cls_Accuracy():
         self.total = 0
         self.correct = 0
 
+
+class BER_Evaluate:
+
+    def __init__(self, threshold = 0.5) -> None:
+        self.threshold = threshold
+        self.TP,self. TN, self.POS, self.NEG = 0, 0, 0, 0
+        self.FP, self.FN = 0, 0
+
+    def update(self, gt, pred):
+
+        assert 0 <= gt.max() <= 1 and 0 <= pred.max() <= 1
+
+        posPoints = gt > self.threshold
+        negPoints = gt <= self.threshold
+
+        countPos = posPoints.sum()
+        countNeg = negPoints.sum()
+
+        tp = posPoints & (pred > self.threshold)
+        countTP = tp.sum()
+
+        tn = negPoints & (pred <= self.threshold)
+        countTN = tn.sum()
+
+
+        FP += ((posPoints) & (pred > self.threshold)).sum()
+        FN += ((negPoints) & (pred < self.threshold)).sum()
+
+        TP += countTP
+        TN += countTN
+        POS += countPos
+        NEG += countNeg
+
+    def calculate(self):
+
+        posAcc = self.TP / self.POS
+        negAcc = self.TN / self.NEG
+
+        BER = 0.5 * (2 - posAcc - negAcc)
+
+        acc_final = (self.TP + self.TN) / (self.POS + self.NEG)
+        final_BER = BER * 100
+        pErr = (1 - posAcc) * 100
+        nErr = (1 - negAcc) * 100
+
+        print(f"BER: {final_BER:.2f}, pErr: {pErr:.2f}, nErr: {nErr:.2f}, acc: {acc_final:.4f}")
+
+        return acc_final, final_BER, pErr, nErr
