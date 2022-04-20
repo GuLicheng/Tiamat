@@ -1,3 +1,5 @@
+#pragma once
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
@@ -84,9 +86,3 @@ py::array_t<T> pixel_fill(py::array_t<T> input1, py::array_t<T> input2, int supe
     return result;
 }
 
-PYBIND11_MODULE(cpp, m) 
-{
-    m.def("label_expand", &pixel_fill<std::int32_t>, py::arg("superpixel"), py::arg("label"), py::arg("superpixel_num"), py::arg("ignore_index"))
-     .def("label_expand", &pixel_fill<std::int64_t>, py::arg("superpixel"), py::arg("label"), py::arg("superpixel_num"), py::arg("ignore_index"))
-     .def("label_expand", &pixel_fill<std::uint8_t>, py::arg("superpixel"), py::arg("label"), py::arg("superpixel_num"), py::arg("ignore_index"));
-}

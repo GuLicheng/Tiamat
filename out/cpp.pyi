@@ -1,0 +1,9 @@
+from typing import overload
+import numpy
+
+@overload
+def label_expand(superpixel: numpy.ndarray[numpy.int32], label: numpy.ndarray[numpy.int32], superpixel_num: int, ignore_index: int) -> numpy.ndarray[numpy.int32]: ...
+@overload
+def label_expand(superpixel: numpy.ndarray[numpy.int64], label: numpy.ndarray[numpy.int64], superpixel_num: int, ignore_index: int) -> numpy.ndarray[numpy.int64]: ...
+@overload
+def label_expand(superpixel: numpy.ndarray[numpy.uint8], label: numpy.ndarray[numpy.uint8], superpixel_num: int, ignore_index: int) -> numpy.ndarray[numpy.uint8]: ...
