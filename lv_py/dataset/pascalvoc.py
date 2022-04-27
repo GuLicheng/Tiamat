@@ -69,8 +69,14 @@ class PascalVoc(Dataset):
         
         if isinstance(index, slice): # debug
             return self._slice(index)
+        elif isinstance(index, str):
+            return self._getitem_by_name(index)
         else:
             return self._getitem(index)
+
+    def _getitem_by_name(self, name):
+        index = self.splits.index(name)
+        return self._getitem(index)
 
     def reset(self, splits: Iterable[str]):
         self.splits = list(splits)
