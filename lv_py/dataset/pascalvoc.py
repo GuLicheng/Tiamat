@@ -44,7 +44,7 @@ class PascalVoc(Dataset):
         'tvmonitor'
     ]
 
-    def __init__(self, img_dir, split, anno_dir = None, class_label = None, sal_dir = None, pipeline = None):
+    def __init__(self, split, img_dir, anno_dir = None, class_label = None, sal_dir = None, pipeline = None):
 
         super().__init__()
 
@@ -105,7 +105,7 @@ class PascalVoc(Dataset):
         if self.sal_dir is not None:
             sample["saliency"] = self.saliency[index]
 
-        return self.pipeline(sample)
+        return sample if self.pipeline is None else self.pipeline(sample)
 
     def _collect_images(self):
         self.images = [f"{self.img_dir}/{name}.jpg" for name in self.splits]
@@ -318,6 +318,34 @@ class PascalVoc(Dataset):
         ToTensor(args=["image", "semantic"]),
         NormalizeImage(),
     ])
+
+
+def make_pascal_voc(
+    data_root, 
+    split, 
+    img_dir = "JPEGImages", 
+    anno_dir = "SegmentationClass", 
+    class_label = None, 
+    sal_dir = None, 
+    pipeline = None
+):
+    split = os.path.join(data_root, split)
+    img_dir = os.path.join(data_root, img_dir)
+    anno_dir = anno_dir and os.path.join(data_root, anno_dir) 
+    sal_dir = sal_dir and os.path.join(data_root, sal_dir)
+    class_label = class_label and os.path.join(data_root, class_label)
+
+    return PascalVoc(
+        split=split, 
+        img_dir=img_dir,
+        anno_dir=anno_dir,
+        class_label=class_label,
+        sal_dir=sal_dir,
+        pipeline=pipeline
+    )
+
+
+
 
 
 if __name__ == "__main__":
