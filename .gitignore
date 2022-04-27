@@ -13,4 +13,5 @@ build
 *.pth
 *.xml
 *.pyd
+*.pyi
 
