@@ -1,35 +1,30 @@
-import os
-from distutils.core import setup, Extension
-
-
-# your complier args
-cpp_args = ['/std:c++latest', '/O2']   
-
-# your pybind11 path
-includes = [
-    # r"D:\software\anaconda3\src\envs\seg\Lib\site-packages\pybind11\include"
-    r"E:\Anaconda3\anaconda3\envs\segmentation\Lib\site-packages\pybind11\include",
-    r"E:\Anaconda3\anaconda3\envs\segmentation\Lib\site-packages\torch\include"
-]
-
-sources_root = "cppextend"
-sources = [f"{sources_root}/{file}" for file in filter(lambda x: x.endswith(".cpp"), os.listdir(sources_root))]
-module_name = "cpp"
-
-ext_modules = [
-    Extension(
-        module_name,
-        sources=sources,
-        include_dirs=includes,
-        language='c++',
-        extra_compile_args=cpp_args,
-    ),
-]
+# https://blog.csdn.net/weixin_44966641/article/details/123303080
+from setuptools import setup, find_packages
 
 setup(
-    name=module_name,
-    version='0.0.1',
-    ext_modules=ext_modules,
+    name="leviathan",
+    version="0.0.1",
+    keywords=["pip", "leviathan"],
+    description="A Python library for functional programming.",
+    long_description="A Python library for functional programming.",
+    license="MIT License",
+    url="",
+    author="LichengGu",
+    author_email="576356467@qq.com",
+    packages=find_packages(),
+    include_package_data=True,
+    platforms="any",
+    install_requires=[
+        "numpy",
+        "pandas",
+        "scipy",
+        "matplotlib",
+        "seaborn",
+        "plotly",
+        "statsmodels",
+        "scikit-learn",
+        "tensorflow",
+        "torch",
+        "transformers",
+    ]
 )
-# python setup.py build_ext -i 
-# stubgen -m cpp
